@@ -42,10 +42,8 @@ Each LED should be wired:
 
 ### Push Button
 
-The button uses the board’s built-in PB driver:
-
-- Connect the push button to **PB0 input**
-- Uses internal pull-up, reads **1 when pressed**
+- Connect the push button to P2_3
+- Uses internal pull-up, reads 1 when pressed
 
 
 ## Program Behavior
