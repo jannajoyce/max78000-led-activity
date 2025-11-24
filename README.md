@@ -1,91 +1,99 @@
-# Flash Example
+This project demonstrates basic GPIO control on the **MAX78000FTHR** by driving **8 LEDs** and using **1 push button** to switch between two LED animation patterns.
+The activity helps students understand embedded programming, GPIO configuration, debouncing, and pattern sequencing.
 
-## Description
+## Features
 
-This example demonstrates the usage of the Flash Controller (FLC) for general purpose storage.  The following use-cases are demonstrated:
+- Controls 8 individual LEDs using GPIO output pins
+- Reads 1 push button using MAX78000’s PB driver
+- Two LED animation modes:
+   1. Odd–Even Blinking Pattern
+   2. Larson Scanner (Knight Rider Effect)
 
-1. Reading bytes from a specific location in Flash
-2. Writing and verifying a test pattern into Flash
-3. Modifying Flash contents
+- Button press toggles between modes
+- Built-in software debouncing for stable button input
+- Fully compatible with MAX78000 SDK
 
-Flash is **non-volatile** memory, meaning that it can retain state through power cycles.  However, application code is stored in Flash and the FLC has some limitations in how it can perform writes, so there are a few minor challenges to deal with when using it for general purpose storage.  This example demonstrates a simplified use-case that covers the most common scenarios.
+## Hardware Requirements
 
-The _first_ time the example is run the application will use the FLC to write and verify a test pattern into the last page of flash.  It will also write a 32-bit "magic" sequence into the page.
+- MAX78000FTHR Development Board
+- 8 LEDs
+- 8 current-limiting resistors (68Ω)
+- 1 Push Button
+- Breadboard + jumper wires
 
-Once complete, the example will prompt the user to reset or power cycle the board.  This is to demonstrate that the written data is non-volatile and can survive a power cycle.
+## Wiring Overview
 
-The _second_ time the example is run the application will see the "magic" 32-bit sequence in flash.  When this happens, the application will verify that the test pattern has survived the power cycle first.  Then, it will _modify_ the "magic" sequence _without_ modifying the rest of the test pattern.
+### LED Connections
 
-## Software
+Each LED is connected to a specific GPIO pin as defined in the code:
 
-### Project Usage
+| LED  | Port  | Pin |
+| ---- | ----- | --- |
+| LED1 | GPIO1 | P6  |
+| LED2 | GPIO0 | P9  |
+| LED3 | GPIO0 | P8  |
+| LED4 | GPIO0 | P11 |
+| LED5 | GPIO0 | P19 |
+| LED6 | GPIO3 | P1  |
+| LED7 | GPIO0 | P16 |
+| LED8 | GPIO0 | P17 |
 
-Universal instructions on building, flashing, and debugging this project can be found in the **[MSDK User Guide](https://analogdevicesinc.github.io/msdk/USERGUIDE/)**.
+Each LED should be wired:
 
-### Project-Specific Build Notes
+### Push Button
 
-* This project comes pre-configured for the MAX78000EVKIT.  See [Board Support Packages](https://analogdevicesinc.github.io/msdk/USERGUIDE/#board-support-packages) in the UG for instructions on changing the target board.
+The button uses the board’s built-in PB driver:
 
-## Hardware Connections
-
-If using the MAX78000EVKIT:
-
-- Connect a USB cable between the PC and the CN1 (USB/PWR) connector.
-- Connect pins 1 and 2 (P0_1) of the JH1 (UART 0 EN) header.
-- Open a terminal application on the PC and connect to the EV kit's console UART at 115200, 8-N-1.
-
-If using the MAX78000FTHR (FTHR_RevA)
-
-- Connect a USB cable between the PC and the CN1 (USB/PWR) connector.
-- Open a terminal application on the PC and connect to the EV kit's console UART at 115200, 8-N-1.
-
-## Expected Output
-
-After flashing and launching the example, an LED on the board will blink once every second.  This is the application waiting for PushButton 1 (PB1) to be pressed, and gives a window for a serial terminal to be connected.  After connecting the serial terminal, the application will output the following contents:
-
-```
-***** Flash Control Example *****
-Press Push Button 1 (PB1/SW1) to continue...
-
----(Critical)---
-Successfully erased page 64 of flash (addr 0x1007e000)
-Writing magic value 0xfeedbeef to address 0x1007e000...
-Done!
-Writing test pattern...
-Done!
-----------------
- -> Interrupt! (Flash operation done)
+- Connect the push button to **PB0 input**
+- Uses internal pull-up, reads **1 when pressed**
 
 
-Now reset or power cycle the board...
+## Program Behavior
 
-```
+- All LEDs are configured as outputs.
+- All LEDs start in the OFF state.
+- Push button input is initialized.
+- Default animation mode is **Odd–Even Pattern**.
 
-At this point, the "magic" and test pattern values have been written to flash.  Press SW5 to reset the board, after which the application will restart.  Push PB1 to continue the application again, which will print out the following contents:
+## LED Patterns
 
-```
-***** Flash Control Example *****
-Press Push Button 1 (PB1/SW1) to continue...
+### 1. Odd–Even Pattern
 
-** Magic value 0xfeedbeef found at address 0x1007e000! **
+- LEDs at indexes 0, 2, 4, 6 turn ON → pause
+- LEDs at indexes 1, 3, 5, 7 turn ON → pause
+- Repeats continuously
 
-(Flash modifications have survived a reset and/or power cycle.)
+### 2. Larson Scanner Pattern
 
-Verifying test pattern...
-Successfully verified test pattern!
+- One LED sweeps left to right
+- Reverses direction at the edges
+- Creates the “Knight Rider” effect
 
----(Critical)---
-Erasing magic...
-Buffering page...
-Erasing page...
-Re-writing from buffer...
-New magic value: 0xabcd1234
-----------------
- -> Interrupt! (Flash operation done)
+## Switching Patterns
 
-Verifying test pattern...
-Successfully verified test pattern!
+- The button press triggers a **rising-edge detection
+- `mode ^= 1` toggles the active LED pattern
+- A small delay is used for debouncing
 
-Flash example successfully completed.
+## File Description
 
-```
+main.c – Contains GPIO setup, button handling, and LED pattern logic.
+
+## How to Run
+
+1. Import project into the MAX78000 SDK environment
+2. Build the project
+3. Flash the firmware to the MAX78000FTHR
+4. Connect LEDs and button
+5. Observe the LED animations
+6. Press the button to change patterns
+
+## Educational Purpose
+
+This activity teaches:
+
+- GPIO configuration
+- Push button debouncing
+- State-based programming
+- LED pattern generation
+- Embedded logic control on MAX78000
